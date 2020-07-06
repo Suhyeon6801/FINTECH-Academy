@@ -1,0 +1,25 @@
+{
+  "name": "fin_project",
+  "version": "1.0.0",
+  "main": "httpServer.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Suhyeon6801/FINTECH_Lecture.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Suhyeon6801/FINTECH_Lecture/issues"
+  },
+  "homepage": "https://github.com/Suhyeon6801/FINTECH_Lecture#readme",
+  "description": "",
+  "dependencies": {
+    "request": "^2.88.2"
+  }
+}
