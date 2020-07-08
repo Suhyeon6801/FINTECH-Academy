@@ -37,7 +37,11 @@ app.post("/ajaxTest", function(req,res){
     res.json("로그인에 성공하셨습니다.");
 });
 
-app.get('/addRouter',function(req,res){
+app.get("/designTest",function(req,res){
+    res.render("designSample.ejs");
+});
+
+app.get("/addRouter",function(req,res){
     console.log("router working");
     res.send("안녕하세요, 새로 추가 된 라우터 입니다.");
 });
