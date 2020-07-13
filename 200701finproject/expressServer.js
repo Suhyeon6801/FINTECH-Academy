@@ -89,4 +89,35 @@ app.post("/signup", function(req,res){
     );
 });
 
+app.post("/login", function(req,res){
+    console.log(req.body);
+    var userEmail=req.body.userEmail;
+    var userPassword = req.body.userPassword;
+
+    //DB에 있는 데이터랑 확인해서 일치하면 email, pw 존재 -> token발급
+
+    var sql = "SELECT * FROM user WHERE email = ?";
+    connection.query(
+    sql,[userEmail],function (error, results) {
+      if (error) throw error;
+      else {
+        if(results.length == 0){
+            res.json("등록되지 않은 회원입니다.");
+        }else{
+            //회원이 존재한다면 password확인
+            var dbPassword = results[0].password;
+            console.log("DB에서 가져온 패스워드 : ", dbPassword);
+
+            //db에서 가져온 패스워드랑 같다면 로그인 성공
+            if(dbPassword==userPassword){
+                res.json("로그인 성공!");
+            }else{
+                res.json("비밀번호가 다릅니다.");
+            }
+        }
+      }
+    }
+  );
+});
+
 app.listen(3000);

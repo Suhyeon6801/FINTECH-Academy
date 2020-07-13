@@ -348,8 +348,12 @@
                     userRefreshToken:userRefreshToken,
                     userSeqNo:userSeqNo,
                 },
-                success:function(response){
-                    console.log(response);
+                success:function(data){
+                    if(data=="1"){
+                        alert("signup success!!");
+                    }else{
+                        alert("signup fail.....")
+                    }
                 }
             })
         });
