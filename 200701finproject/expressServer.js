@@ -1,49 +1,88 @@
 const express = require("express");
-const { request } = require("express");
 const app = express();
 const path = require("path");
+const request = require("request");
+var mysql = require("mysql");
 
-app.set("views", __dirname+"/views");
-app.set("view engine","ejs");
+//mysql에 접근 가능한 사용자 확인 여부
+var connection = mysql.createConnection({
+  host     : "localhost",
+  user     : "root",
+  password : "8603",//비밀번호
+  database : "fintech",
+  port : "3306"
+});
+ 
+connection.connect();
+
+app.set("views", __dirname + "/views");
+app.set("view engine", "ejs");
 
 app.use(express.json());
-app.use(express.urlencoded({extended:false}));
+app.use(express.urlencoded({ extended: false }));
 
-app.use(express.static(path.join(__dirname, 'public')));//to use static asset
- 
-app.get('/', function (req, res) {
-  res.send('Hello World');
+app.use(express.static(path.join(__dirname, "public"))); //to use static asset
+
+app.get("/signup", function (req, res) {
+  res.render("signup");
 });
 
-app.get("/ejsTest", function(req,res){
-    res.render('test');
+app.get("/authResult", function (req, res) {
+  var authCode = req.query.code;
+  console.log("사용자 인증코드 : ", authCode);
+  var option = {
+    method: "POST",
+    url: "https://testapi.openbanking.or.kr/oauth/2.0/token",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    //form 형태는 form / 쿼리스트링 형태는 qs / json 형태는 json ***
+    form: {
+      code: authCode,
+      client_id: "C97hgR1f0wrvnhKGLe3SA213vFXtlVKwGLiRHazD",
+      client_secret: "PYSbTdUbbnTQ7jTBHS2QCIUi4NlTJKVBj68259e4",
+      redirect_uri: "http://localhost:3000/authResult",
+      grant_type: "authorization_code",
+    },
+  };
+  request(option, function (error, response, body) {
+      if(error){
+          console.error(error);
+      }else{
+          var accessRequestResult = JSON.parse(body);
+          console.log(accessRequestResult);
+          res.render("resultChild",{data : accessRequestResult});
+      }
+  });
 });
 
-app.get("/ejsTable", function(req,res){
-    console.log("table test");
-    res.render('testTable');
+app.post("/signup", function(req,res){
+    var userName = req.body.userName;
+    var userPassword = req.body.userPassword;
+    var userEmail = req.body.userEmail;
+    var userAccessToken = req.body.userAccessToken;
+    var userRefreshToken = req.body.userRefreshToken;
+    var userSeqNo = req.body.userSeqNo;
+  
+    var sql =
+      "INSERT INTO user (`name`, `email`, `password`, `accesstoken`, `refreshtoken`, `userseqno`) VALUES (?, ?, ?, ?, ?, ?)";
+    connection.query(
+      sql,
+      [
+        userName,
+        userEmail,
+        userPassword,
+        userAccessToken,
+        userRefreshToken,
+        userSeqNo,
+      ],
+      function (error, results) {
+        if (error) throw error;
+        else {
+          res.json(1);
+        }
+      }
+    );
 });
 
-app.post("/ajaxTest", function(req,res){
-    var userID = req.body.sendUserID;
-    var userPW = req.body.sendUserPW;
-    var userName = req.body.sendUserName;
-    var userEmail = req.body.sendUSerEmail;
-
-    console.log("요청 바디 : ", req.body);
-    // console.log("사용자의 아이디는 : ", userID);
-    // console.log("사용자의 비빌번호는 : ", userPW);
-
-    res.json("로그인에 성공하셨습니다.");
-});
-
-app.get("/designTest",function(req,res){
-    res.render("designSample.ejs");
-});
-
-app.get("/addRouter",function(req,res){
-    console.log("router working");
-    res.send("안녕하세요, 새로 추가 된 라우터 입니다.");
-});
- 
-app.listen(3000)
+app.listen(3000);
