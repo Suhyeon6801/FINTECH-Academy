@@ -3,6 +3,7 @@ const app = express();
 const path = require("path");
 const request = require("request");
 var mysql = require("mysql");
+const jwt = require("jsonwebtoken");
 
 //mysql에 접근 가능한 사용자 확인 여부
 var connection = mysql.createConnection({
@@ -95,6 +96,7 @@ app.post("/login", function(req,res){
     var userPassword = req.body.userPassword;
 
     //DB에 있는 데이터랑 확인해서 일치하면 email, pw 존재 -> token발급
+    //토큰 사용 이유 : 서비스에 접근하기 위한 유저들을 확인하기 위해
 
     var sql = "SELECT * FROM user WHERE email = ?";
     connection.query(
@@ -110,7 +112,26 @@ app.post("/login", function(req,res){
 
             //db에서 가져온 패스워드랑 같다면 로그인 성공
             if(dbPassword==userPassword){
-                res.json("로그인 성공!");
+                //여기서 token 발급!! -> 여기서 만들어진 토큰은 accessToken이랑은 다르다!
+                //우리서비스에 접근하기 위한 key
+                var tokenKey = "f@i#n%tne#ckfhlafkd0102test!@#%";
+                jwt.sign(
+                    {
+                        userId: results[0].id,
+                        userEmail: results[0].email,
+                    },
+                        tokenKey,
+                    {
+                        expiresIn: "10d",//10일짜리 키
+                        issuer: "fintech.admin",
+                        subject: "user.login.info",
+                    },
+                    function (err, token) {
+                        console.log("로그인 성공", token);
+                        res.json(token);
+                    }
+                );
+
             }else{
                 res.json("비밀번호가 다릅니다.");
             }
