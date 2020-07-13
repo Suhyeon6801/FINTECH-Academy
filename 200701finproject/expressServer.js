@@ -154,15 +154,23 @@ app.post("/login", function(req,res){
 app.post("/list", function (req, res) {
     //request 계좌 목록 조회 요청 만들기 request 모듈 활용
     //res.json(aPI 결과 body 객체)
+
+    var jwtToken = req.headers.jwtToken;
+    //var user_seq_no ="1100760515";
+    console.log("token :" ,jwtToken);
+
     var option = {
-      method: "",
-      url: "",
+      method: "GET",
+      url: "https://testapi.openbanking.or.kr/v2.0/user/me",
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
+        "Authorization" : "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiIxMTAwNzYwNTE1Iiwic2NvcGUiOlsiaW5xdWlyeSIsImxvZ2luIiwidHJhbnNmZXIiXSwiaXNzIjoiaHR0cHM6Ly93d3cub3BlbmJhbmtpbmcub3Iua3IiLCJleHAiOjE2MDIzOTQ1MDYsImp0aSI6IjNlOTZhYWE5LWQyMDEtNDc5NS04YTE4LTQyMjNiOTk4MDRiYiJ9.a7hxTAIk3qvLaT5sWFxOYb7N4azE2axtKc_luO-Q970",
       },
       //form 형태는 form / 쿼리스트링 형태는 qs / json 형태는 json ***
-      form: {},
+      qs :{
+        "user_seq_no" : "1100760515"
+      }
     };
+
     request(option, function (error, response, body) {
       if (error) {
         console.error(error);
