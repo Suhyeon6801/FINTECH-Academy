@@ -208,6 +208,17 @@
               <h1 id="balanceAmount"></h1>
             </div>
             <div id="transactionList"></div>
+                <table>
+                    <thead>
+                        <th>거래번호</th>
+                        <th>거래일자</th>
+                        <th>거래내역</th>
+                        <th>거래금액</th>
+                    </thead>
+                    <tbody id = transactionTable>
+                        <!--서버에서 가져온 값-->
+                    </tbody>
+                </table>
           </div>
           <div class="form-divider"></div>
           <footer>
@@ -286,7 +297,17 @@
           fin_use_num: qs.fin_use_num,
         },
         success: function (data) {
-          console.log("거래내역:", data.balance_amt);
+          console.log("거래내역:", data);
+          var transactionList = data.res_list;
+
+          for(var i=0; i<transactionList.length; i++){
+              var transactionElement = transactionList[i];
+              //append -> data가 많아지면 비효율적이긴 함...;;
+              $("#transactionTable").append("<tr><td>"+(i+1)+"</td>"
+              +"<td>"+transactionElement.tran_time+"</td>"
+              +"<td>"+transactionElement.print_content+"</td>"
+              +"<td>"+transactionElement.tran_amt+"</td></tr>");
+          }
         },
       });
 

@@ -260,11 +260,11 @@ app.post("/transactionList", auth, function (req, res) {
         qs: {
           bank_tran_id: transId,
           fintech_use_num: fin_use_num,
-          inquiry_type: 'A',
-          inquiry_base: 'D',
-          from_date: '20190101',
-          to_date: '20200715',
-          sort_order: 'D',
+          inquiry_type: "A",
+          inquiry_base: "D",
+          from_date: "20190101",
+          to_date: "20200715", //나중에 사용자로 부터 입력을 받아오도록!
+          sort_order: "D",
           tran_dtime: "20200715140733"
         },
       };
