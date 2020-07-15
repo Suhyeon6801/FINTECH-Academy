@@ -46,6 +46,9 @@ app.get("/balance", function (req, res) {
   res.render("balance");
 });
 
+app.get("/qrcode", function(req,res){
+  res.render("qrcode");
+});
 //========================= view / login ============================
 
 app.get("/authResult", function (req, res) {
