@@ -42,7 +42,7 @@ app.get("/main", function (req, res) {
   res.render("main");
 });
 
-app.get("/balance", function(req,res){
+app.get("/balance", function (req, res) {
   res.render("balance");
 });
 
@@ -172,11 +172,11 @@ app.post("/list", auth, function (req, res) {//멀티 유저가 사용 -> auth�
         url: "https://testapi.openbanking.or.kr/v2.0/user/me",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
-          Authorization: "Bearer "+ results[0].accesstoken,
+          Authorization: "Bearer " + results[0].accesstoken,
         },
         //form 형태는 form / 쿼리스트링 형태는 qs / json 형태는 json ***
         qs: {
-          user_seq_no : results[0].userseqno,
+          user_seq_no: results[0].userseqno,
         }
       };
 
@@ -194,7 +194,7 @@ app.post("/list", auth, function (req, res) {//멀티 유저가 사용 -> auth�
   });
 });
 
-app.post("/balance",auth, function(req,res){//사용자정보에 따라 -> auth
+app.post("/balance", auth, function (req, res) {//사용자정보에 따라 -> auth
   var userId = req.decoded.userId;
   var fin_use_num = req.body.fin_use_num;
   console.log("받아온 데이터 ", userId, fin_use_num);
@@ -204,36 +204,78 @@ app.post("/balance",auth, function(req,res){//사용자정보에 따라 -> auth
   var countnum = Math.floor(Math.random() * 1000000000) + 1;
   var transId = "T991641960U" + countnum;
 
-  connection.query(sql,[userId], function(err, results){
-    if(err){
+  connection.query(sql, [userId], function (err, results) {
+    if (err) {
       console.error(err);
       throw err;
-    }else{
+    } else {
       console.log("밸런스에 받아온 데이터 베이스 값 : ", results);
       var option = {
         method: "GET",
         url: "https://testapi.openbanking.or.kr/v2.0/account/balance/fin_num",
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
-          Authorization: "Bearer "+ results[0].accesstoken,
+          Authorization: "Bearer " + results[0].accesstoken,
         },
         //form 형태는 form / 쿼리스트링 형태는 qs / json 형태는 json ***
         qs: {
-          bank_tran_id : transId,
-          fintech_use_num : fin_use_num,
-          tran_dtime :"20200715123633" //date만들어두 댐!
+          bank_tran_id: transId,
+          fintech_use_num: fin_use_num,
+          tran_dtime: "20200715123633" //date만들어두 댐!
         },
       };
 
-      request(option, function(err, response, body){
+      request(option, function (err, response, body) {
         console.log(body);
-
         var balanceResult = JSON.parse(body);
         res.json(balanceResult);
       });
     }
   });
+});
 
+app.post("/transactionList", auth, function (req, res) {
+  var userId = req.decoded.userId;
+  var fin_use_num = req.body.fin_use_num;
+  console.log(userId, fin_use_num + " 의 거래 내역 조회 하기");
+
+  var sql = "SELECT * FROM user WHERE id=?";
+
+  var countnum = Math.floor(Math.random() * 1000000000) + 1;
+  var transId = "T991641960U" + countnum;
+
+  connection.query(sql, [userId], function (err, results) {
+    if (err) {
+      console.error(err);
+      throw err;
+    } else {
+      var option = {
+        method: "GET",
+        url: "https://testapi.openbanking.or.kr/v2.0/account/transaction_list/fin_num",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: "Bearer " + results[0].accesstoken,
+        },
+        //form 형태는 form / 쿼리스트링 형태는 qs / json 형태는 json ***
+        qs: {
+          bank_tran_id: transId,
+          fintech_use_num: fin_use_num,
+          inquiry_type: 'A',
+          inquiry_base: 'D',
+          from_date: '20190101',
+          to_date: '20200715',
+          sort_order: 'D',
+          tran_dtime: "20200715140733"
+        },
+      };
+
+      request(option, function (err, response, body) {
+        console.log(body);
+        var transactionListResult = JSON.parse(body);
+        res.json(transactionListResult);
+      });
+    }
+  });
 });
 
 app.listen(3000);

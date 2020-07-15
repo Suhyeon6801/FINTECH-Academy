@@ -274,6 +274,22 @@
           $("#balanceAmount").text(data.balance_amt);
         },
       });
+
+      $.ajax({
+        //#transactionList url에 데이터 요청 requestBody : finusenum / header token
+        url: "http://localhost:3000/transactionList",
+        type: "POST",
+        headers: {
+          ourtoken: jwtToken,
+        },
+        data: {
+          fin_use_num: qs.fin_use_num,
+        },
+        success: function (data) {
+          console.log("거래내역:", data.balance_amt);
+        },
+      });
+
     </script>
   </body>
 </html>
