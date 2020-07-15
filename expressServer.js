@@ -194,4 +194,46 @@ app.post("/list", auth, function (req, res) {//멀티 유저가 사용 -> auth�
   });
 });
 
+app.post("/balance",auth, function(req,res){//사용자정보에 따라 -> auth
+  var userId = req.decoded.userId;
+  var fin_use_num = req.body.fin_use_num;
+  console.log("받아온 데이터 ", userId, fin_use_num);
+
+  var sql = "SELECT * FROM user WHERE id=?";
+
+  var countnum = Math.floor(Math.random() * 1000000000) + 1;
+  var transId = "T991641960U" + countnum;
+
+  connection.query(sql,[userId], function(err, results){
+    if(err){
+      console.error(err);
+      throw err;
+    }else{
+      console.log("밸런스에 받아온 데이터 베이스 값 : ", results);
+      var option = {
+        method: "GET",
+        url: "https://testapi.openbanking.or.kr/v2.0/account/balance/fin_num",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: "Bearer "+ results[0].accesstoken,
+        },
+        //form 형태는 form / 쿼리스트링 형태는 qs / json 형태는 json ***
+        qs: {
+          bank_tran_id : transId,
+          fintech_use_num : fin_use_num,
+          tran_dtime :"20200715123633" //date만들어두 댐!
+        },
+      };
+
+      request(option, function(err, response, body){
+        console.log(body);
+
+        var balanceResult = JSON.parse(body);
+        res.json(balanceResult);
+      });
+    }
+  });
+
+});
+
 app.listen(3000);
