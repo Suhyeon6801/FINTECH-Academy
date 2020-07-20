@@ -213,7 +213,7 @@
           </div>
 
           <video id="preview"></video>
-          
+
           <div class="form-divider"></div>
 
           <footer>
@@ -259,8 +259,20 @@
       let scanner = new Instascan.Scanner({
         video: document.getElementById("preview"),
       });
+      var jwtToken = sessionStorage.getItem('ourToken');
       scanner.addListener("scan", function (content) {
         console.log(content);
+        //withdraw 라우터에 content(핀테크 번호)를 담아 ajax 전송
+        $.ajax({
+            url:"http://localhost:3000/withdraw",
+            type:"POST",
+            headers : {
+                ourtoken : jwtToken
+            },
+            data:{
+                fin_use_num : content,
+            },
+        })
       });
       Instascan.Camera.getCameras()
         .then(function (cameras) {
@@ -274,8 +286,5 @@
           console.error(e);
         });
     </script>
-
-
-    <script></script>
   </body>
 </html>

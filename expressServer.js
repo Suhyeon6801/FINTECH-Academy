@@ -46,11 +46,11 @@ app.get("/balance", function (req, res) {
   res.render("balance");
 });
 
-app.get("/qrcode", function(req,res){
+app.get("/qrcode", function (req, res) {
   res.render("qrcode");
 });
 
-app.get("/qrreader", function(req,res){
+app.get("/qrreader", function (req, res) {
   res.render("qrreader");
 });
 //========================= view / login ============================
@@ -280,6 +280,59 @@ app.post("/transactionList", auth, function (req, res) {
         console.log(body);
         var transactionListResult = JSON.parse(body);
         res.json(transactionListResult);
+      });
+    }
+  });
+});
+
+app.post("/withdraw", auth, function (req, res) {
+  //출금이체 코드를 작성해보자!
+  //출금이 발생할 핀테크번호는 고정값 사용 -> 199164196057885159724922
+
+  var userId = req.decoded.userId;
+  var fin_use_num = req.body.fin_use_num;
+  console.log("받아온 데이터", userId, fin_use_num);
+
+  var countnum = Math.floor(Math.random() * 1000000000) + 1;
+  var transId = "T991641960U" + countnum;
+
+  var sql = "SELECT * FROM user WHERE id=?";
+
+  connection.query(sql, [userId], function (err, results) {
+    if(err){
+      console.error(err);
+      throw err;
+    }else{
+      var option = {
+        method: "POST",
+        url: "https://testapi.openbanking.or.kr/v2.0/transfer/withdraw/fin_num",
+        headers: {
+          "Content-Type": "application/json; charset=UTF-8",
+          Authorization: "Bearer " + results[0].accesstoken,
+        },
+        //form 형태는 form / 쿼리스트링 형태는 qs / json 형태는 json ***
+        json: {
+          "bank_tran_id": transId,
+          "cntr_account_type": "N",
+          "cntr_account_num": "0762301594",
+          "dps_print_content": "쇼핑몰환불",
+          "fintech_use_num": "199164196057885159724922",
+          "wd_print_content": "오픈뱅킹출금",
+          "tran_amt": "1000",
+          "tran_dtime": "20200720114100",
+          "req_client_name": "홍길동",
+          "req_client_num": "HONGGILDONG1234",
+          "transfer_purpose": "ST",
+          "req_client_fintech_use_num": "199164196057885159724922",
+          "recv_client_name": "김오픈",
+          "recv_client_bank_code": "097",
+          "recv_client_account_num": "0762301594"
+        },
+      };
+
+      request(option, function (err, response, body) {
+        console.log(body);
+        res.json(body);
       });
     }
   });
