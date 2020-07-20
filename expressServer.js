@@ -292,6 +292,7 @@ app.post("/withdraw", auth, function (req, res) {
   var userId = req.decoded.userId;
   var fin_use_num = req.body.fin_use_num;
   var amount = req.body.amount;
+  var to_fin_use_num = req.body.to_fin_use_num;
   console.log("받아온 데이터", userId, fin_use_num);
 
   var countnum = Math.floor(Math.random() * 1000000000) + 1;
@@ -300,10 +301,10 @@ app.post("/withdraw", auth, function (req, res) {
   var sql = "SELECT * FROM user WHERE id=?";
 
   connection.query(sql, [userId], function (err, results) {
-    if(err){
+    if (err) {
       console.error(err);
       throw err;
-    }else{
+    } else {
       var option = {
         method: "POST",
         url: "https://testapi.openbanking.or.kr/v2.0/transfer/withdraw/fin_num",
@@ -333,7 +334,50 @@ app.post("/withdraw", auth, function (req, res) {
 
       request(option, function (err, response, body) {
         console.log(body);
-        res.json(body);
+        //res.json(body);
+
+        var countnum2 = Math.floor(Math.random() * 1000000000) + 1;
+        var transId2 = "T991641960U" + countnum2;
+
+        var option = {
+          method: "POST",
+          url:
+            "https://testapi.openbanking.or.kr/v2.0/transfer/deposit/fin_num",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization:
+              "Bearer " +
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJUOTkxNjQxOTYwIiwic2NvcGUiOlsib29iIl0sImlzcyI6Imh0dHBzOi8vd3d3Lm9wZW5iYW5raW5nLm9yLmtyIiwiZXhwIjoxNjAyOTk5NjAzLCJqdGkiOiJkZmRiNzU5Yi1mNDQ4LTQ2N2EtYjliNS1lNWI3ZjJlZTgwZmQifQ.UC1Iq2v1UsoY8V8yjiu_m5cZ5hgOJlC9eLNnw-dQ8d4",
+          },
+          //form 형태는 form / 쿼리스트링 형태는 qs / json 형태는 json ***
+          json: {
+            cntr_account_type: "N",
+            cntr_account_num: "6116412992",
+            wd_pass_phrase: "NONE",
+            wd_print_content: "환불금액",
+            name_check_option: "on",
+            tran_dtime: "20200720151900",
+            req_cnt: "1",
+            req_list: [
+              {
+                tran_no: "1",
+                bank_tran_id: transId2,
+                fintech_use_num: to_fin_use_num,
+                print_content: "쇼핑몰환불",
+                tran_amt: amount,
+                req_client_name: "홍길동",
+                req_client_num: "HONGGILDONG1234",
+                req_client_fintech_use_num: fin_use_num,
+                transfer_purpose: "ST",
+              },
+            ],
+          },
+        };
+
+        request(option, function (err, response, body) {
+          console.log(body);
+          res.json(body);
+        });
       });
     }
   });

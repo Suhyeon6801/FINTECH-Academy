@@ -231,9 +231,11 @@
             video: document.getElementById("preview"),
         });
         var jwtToken = sessionStorage.getItem('ourToken');
+        var toFinUseNo = undefined;
 
         scanner.addListener("scan", function (content) {
             console.log(content);
+            toFinUseNo = content;
             $("#largePopup").show();
             $.ajax({
                 url: "/list",
@@ -285,7 +287,8 @@
                     ourtoken: jwtToken
                 },
                 data: {
-                    fin_use_num: finusenum,
+                    fin_use_num: finusenum,//내계좌
+                    to_fin_use_num:toFinUseNo,//전송할 계좌
                     amount: $("#amountInput").val(),
                 },
                 success: function (data) {
