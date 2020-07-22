@@ -11,5 +11,10 @@ rows = tableBody.find_elements_by_tag_name('tr')
 for index, value in enumerate(rows):
     if index != 0:
         rowNo = value.find_elements_by_tag_name('td')[1]
-        print(rowNo.text)
+        address = value.find_elements_by_tag_name('td')[2]
+        homeType = value.find_elements_by_tag_name('td')[3]
+        print(rowNo.text+address.text+homeType.text)
+        
+nextBtn = driver.find_element_by_xpath('//*[@id="list"]/tbody/tr[4]/td/ul/a[1]')
+nextBtn.click()
         
